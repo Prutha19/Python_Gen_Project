@@ -49,7 +49,7 @@ def has_any_role(allowed_roles: List[str]) -> Callable[..., Dict[str, Any]]:
     def role_checker(payload: Dict[str, Any] = Depends(get_current_token)) -> Dict[str, Any]:
         token_roles = payload.get("roles")
 
-        print("DEBUG roles:", token_roles, type(token_roles))  # 👈 keep this for now
+        print("DEBUG roles:", token_roles, type(token_roles))  
 
         if not token_roles:
             raise HTTPException(
