@@ -29,7 +29,6 @@ def create_access_token(data: dict, expires_delta: Union[datetime.timedelta, Non
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-# FastAPI dependency helpers for JWT auth + RBAC
 security = HTTPBearer()
 
 def decode_token(token: str) -> Dict[str, Any]:
@@ -58,22 +57,20 @@ def has_any_role(allowed_roles: List[str]) -> Callable[..., Dict[str, Any]]:
                 detail="Token missing roles"
             )
 
-        # 🔥 FIX: handle string case properly
         if isinstance(token_roles, str):
             import ast
             try:
-                token_roles = ast.literal_eval(token_roles)  # converts "['ROLE_USER']" → ['ROLE_USER']
+                token_roles = ast.literal_eval(token_roles)  
             except:
                 token_roles = [token_roles]
 
-        # ensure list
+        
         if not isinstance(token_roles, list):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid roles format"
             )
 
-        # 🔥 STRICT MATCH ONLY
         if not set(token_roles).intersection(set(allowed_roles)):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
