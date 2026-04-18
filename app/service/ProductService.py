@@ -7,12 +7,15 @@ from sqlalchemy.orm import Session
 from ..database import get_db_session
 from ..models.Products import Product
 
+
 class ProductService:
     def __init__(self, upload_dir: str = "ProductImage"):
         self.upload_dir = Path(upload_dir)
         self.upload_dir.mkdir(exist_ok=True)
 
-    def create_product(self, file: UploadFile, product_name: str, product_price: str) -> dict:
+    def create_product(
+        self, file: UploadFile, product_name: str, product_price: str
+    ) -> dict:
         file_path = self._save_image(file)
         price = self._parse_price(product_price)
         product = Product(
@@ -20,7 +23,9 @@ class ProductService:
             product_price=price,
             product_image=str(file_path),
         )
-        print(f"Creating product: {product_name} with price: {price} and image path: {file_path}")
+        print(
+            f"Creating product: {product_name} with price: {price} and image path: {file_path}"
+        )
         self._save_product(product)
         return {
             "message": "Product created successfully",
@@ -40,7 +45,9 @@ class ProductService:
     def get_product_by_name(self, product_name: str) -> Optional[dict]:
         db: Session = get_db_session()
         try:
-            product = db.query(Product).filter(Product.product_name == product_name).first()
+            product = (
+                db.query(Product).filter(Product.product_name == product_name).first()
+            )
             return self._serialize_product(product) if product else None
         finally:
             db.close()

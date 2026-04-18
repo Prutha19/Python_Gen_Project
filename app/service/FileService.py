@@ -8,6 +8,7 @@ from PyPDF2 import PdfReader
 from ..database import get_db_session
 from ..models.FileUpload import FileUpload
 
+
 class FileService:
     def __init__(self, upload_dir: str = "files"):
         self.upload_dir = Path(upload_dir)
@@ -31,13 +32,13 @@ class FileService:
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-    def _save_file_record(self, user_name: str, file_location: str, bike_name: str) -> None:
+    def _save_file_record(
+        self, user_name: str, file_location: str, bike_name: str
+    ) -> None:
         db: Session = get_db_session()
         try:
             file_upload = FileUpload(
-                user_name=user_name,
-                file_location=file_location,
-                bike_name=bike_name
+                user_name=user_name, file_location=file_location, bike_name=bike_name
             )
             db.add(file_upload)
             db.commit()

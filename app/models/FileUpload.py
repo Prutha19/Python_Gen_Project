@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String
 from ..database import Base
 
+
 class FileUpload(Base):
     __tablename__ = "file_upload"
     id = Column(Integer, primary_key=True, index=True)

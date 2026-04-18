@@ -2,9 +2,11 @@ name: FastAPI CI Pipeline
 
 on:
   push:
-    branches: [ gen ]
+    branches: 
+      - "**"
   pull_request:
-    branches: [ gen ]
+    branches: 
+      - "**"
 
 jobs:
   build-test:
@@ -25,9 +27,9 @@ jobs:
           pip install -r requirements.txt
           pip install pytest flake8
 
-      # - name: Run Lint Check
-      #   run: |
-      #     flake8 .
+      - name: Run Lint Check
+        run: |
+          flake8 .
 
       # - name: Run Tests
       #   run: |
