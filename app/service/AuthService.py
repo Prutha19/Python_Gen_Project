@@ -26,15 +26,22 @@ def create_access_token(data: dict, expires_delta: Union[datetime.timedelta, Non
     to_encode = data.copy()
     expire = datetime.datetime.utcnow() + (expires_delta or datetime.timedelta(minutes=15))
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    roles = to_encode.get("roles")
+    if roles:
+        if isinstance(roles, str):
+            to_encode["roles"] = [roles]
+        elif not isinstance(roles, list):
+            raise ValueError("Roles must be string or list")
 
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 security = HTTPBearer()
 
 def decode_token(token: str) -> Dict[str, Any]:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        if "roles" not in payload:
+        print("Decoded token payload:", payload)    
+        if "roles" not in payload:  
             raise JWTError("Token missing roles")
         return payload
     except JWTError:
@@ -47,36 +54,24 @@ def get_current_token(credentials: HTTPAuthorizationCredentials = Depends(securi
 
 def has_any_role(allowed_roles: List[str]) -> Callable[..., Dict[str, Any]]:
     def role_checker(payload: Dict[str, Any] = Depends(get_current_token)) -> Dict[str, Any]:
+        print("DEBUG allowed_roles:", allowed_roles)
+        print("DEBUG payload:", payload)
         token_roles = payload.get("roles")
-
-        print("DEBUG roles:", token_roles, type(token_roles))  
-
+        print("DEBUG token_roles:", token_roles)
         if not token_roles:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token missing roles"
-            )
-
-        if isinstance(token_roles, str):
-            import ast
-            try:
-                token_roles = ast.literal_eval(token_roles)  
-            except:
-                token_roles = [token_roles]
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token missing roles")
 
         
-        if not isinstance(token_roles, list):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid roles format"
-            )
+        if isinstance(token_roles, str):
+            token_roles = [token_roles]
 
-        if not set(token_roles).intersection(set(allowed_roles)):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Forbidden: insufficient role"
-            )
+        if not isinstance(token_roles, list):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid roles format")
+
+        print("DEBUG comparing:", token_roles, "VS", allowed_roles)
+        if not any(role in allowed_roles for role in token_roles):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden: insufficient role")
 
         return payload
-
     return role_checker
+

@@ -5,7 +5,7 @@ from fastapi import UploadFile
 from pathlib import Path
 from sqlalchemy.orm import Session
 from PyPDF2 import PdfReader
-from ..database import SessionLocal
+from ..database import get_db_session
 from ..models.FileUpload import FileUpload
 
 class FileService:
@@ -32,7 +32,7 @@ class FileService:
             shutil.copyfileobj(file.file, buffer)
 
     def _save_file_record(self, user_name: str, file_location: str, bike_name: str) -> None:
-        db: Session = SessionLocal()
+        db: Session = get_db_session()
         try:
             file_upload = FileUpload(
                 user_name=user_name,

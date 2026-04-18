@@ -13,6 +13,7 @@ def upload_file(
     bike_name: str = Form(...),
     _auth: dict = Depends(has_any_role(["ROLE_ADMIN"]))
 ):
+    print(f"Uploading file for user: {user_name}, bike: {bike_name}")
     return file_service.upload_file(file, user_name, bike_name)
 
 
