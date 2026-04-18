@@ -2,17 +2,17 @@ from fastapi import FastAPI
 from .controller import file_controller
 from .controller import AuthController
 from .controller import product_controller
-from .database import engine, SessionLocal
+from .database import engine, get_db_session
 from .models import Base, User, Role, Product
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from fastapi.staticfiles import StaticFiles
-
+from .controller import TestRideController
 
 Base.metadata.create_all(bind=engine)
 
 def seed_roles():
-    db: Session = SessionLocal()
+    db: Session = get_db_session()
     try:
         if db.query(Role).first() is None:
             admin_role = Role(name="ROLE_ADMIN")
@@ -41,7 +41,7 @@ app.mount("/ProductImage", StaticFiles(directory="ProductImage"), name="ProductI
 app.include_router(file_controller.router)
 app.include_router(AuthController.router)
 app.include_router(product_controller.router)
-
+app.include_router(TestRideController.router)
 @app.get("/")
 def root():
     return {"message": "Welcome to FastAPI project!"}

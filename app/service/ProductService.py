@@ -4,7 +4,7 @@ from pathlib import Path
 from fastapi import UploadFile
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from ..database import SessionLocal
+from ..database import get_db_session
 from ..models.Products import Product
 
 class ProductService:
@@ -20,6 +20,7 @@ class ProductService:
             product_price=price,
             product_image=str(file_path),
         )
+        print(f"Creating product: {product_name} with price: {price} and image path: {file_path}")
         self._save_product(product)
         return {
             "message": "Product created successfully",
@@ -29,7 +30,7 @@ class ProductService:
         }
 
     def get_all_products(self) -> List[dict]:
-        db: Session = SessionLocal()
+        db: Session = get_db_session()
         try:
             products = db.query(Product).all()
             return [self._serialize_product(product) for product in products]
@@ -37,7 +38,7 @@ class ProductService:
             db.close()
 
     def get_product_by_name(self, product_name: str) -> Optional[dict]:
-        db: Session = SessionLocal()
+        db: Session = get_db_session()
         try:
             product = db.query(Product).filter(Product.product_name == product_name).first()
             return self._serialize_product(product) if product else None
@@ -57,7 +58,7 @@ class ProductService:
             raise ValueError("product_price must be a valid number")
 
     def _save_product(self, product: Product) -> None:
-        db: Session = SessionLocal()
+        db: Session = get_db_session()
         try:
             db.add(product)
             db.commit()

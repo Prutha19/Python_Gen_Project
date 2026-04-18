@@ -34,3 +34,8 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+def get_db_session():
+    """Return a new database session for service use."""
+    return SessionLocal()
