@@ -3,13 +3,14 @@ from .controller import file_controller
 from .controller import AuthController
 from .controller import product_controller
 from .database import engine, get_db_session
-from .models import Base, User, Role, Product
+from .models import Base,  Role
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from fastapi.staticfiles import StaticFiles
 from .controller import TestRideController
 
 Base.metadata.create_all(bind=engine)
+
 
 def seed_roles():
     db: Session = get_db_session()
@@ -25,6 +26,7 @@ def seed_roles():
         print(f"Error seeding roles: {e}")
     finally:
         db.close()
+
 
 seed_roles()
 
@@ -42,6 +44,8 @@ app.include_router(file_controller.router)
 app.include_router(AuthController.router)
 app.include_router(product_controller.router)
 app.include_router(TestRideController.router)
+
+
 @app.get("/")
 def root():
     return {"message": "Welcome to FastAPI project!"}
