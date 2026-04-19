@@ -7,8 +7,7 @@ from .models import Base,  Role
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from fastapi.staticfiles import StaticFiles
-from .controller import TestRideController
-
+from .controller import TestRideController,EnquiryController
 Base.metadata.create_all(bind=engine)
 
 
@@ -44,7 +43,7 @@ app.include_router(file_controller.router)
 app.include_router(AuthController.router)
 app.include_router(product_controller.router)
 app.include_router(TestRideController.router)
-
+app.include_router(EnquiryController.router)
 
 @app.get("/")
 def root():
